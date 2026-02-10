@@ -1,67 +1,59 @@
-# Image2TextApp – AppSec Focused
+# Image2TextApp – Secure OCR Implementation
 
-**Image2TextApp** is an Android application that captures images and extracts text using Google ML Kit. This version emphasizes Application Security (AppSec) principles, highlighting secure coding practices, threat mitigation, and potential vulnerabilities.
+A professional Android application utilizing **Google ML Kit** for text extraction. This project serves as a practical case study for **Mobile Application Security (AppSec)**, featuring hardening techniques against common vectors found in the **OWASP Mobile Top 10**.
 
-## Features
+---
 
-- **Secure Image Capture**: Handles device camera access with proper runtime permissions, minimizing attack surface.
-- **Text Extraction**: Detects and extracts text using Google ML Kit while avoiding unsafe storage or logging of sensitive data.
-- **Safe Display of Results**: Prevents exposure of sensitive information when showing extracted text.
-- **Secure Data Handling**:
-  - Images processed in memory; local storage encrypted if needed.
-  - No sensitive data written to plaintext files or logs.
-- **Input Validation & Sanitization**: Prevents injection attacks and unsafe handling of extracted text.
+## 🔍 Security Assessment & Hardening
+*This application has been audited using industry-standard security tools to ensure resilient architecture.*
 
-## Potential Vulnerabilities Highlighted
+### 1. Static Analysis (MobSF)
+I integrated the following mitigations based on **MobSF (Mobile Security Framework)** reports:
+* **Code Obfuscation:** Enabled **R8/ProGuard** to mangle class names and remove source file attributes, making reverse engineering significantly harder.
+* **Manifest Security:** Verified that `allowBackup` is set to `false` to prevent sensitive data extraction via ADB backups.
+* **Network Hardening:** Implemented a **Network Security Configuration** to enforce strict **TLS (HTTPS)** and disable cleartext traffic.
 
-- Unencrypted storage of captured images or text.
-- Insecure handling of API keys for ML Kit.
-- Improper permission handling that could allow unauthorized access.
-- Logging sensitive data during debugging.
-- Lack of input validation could lead to injection attacks if text is later used in other contexts.
+### 2. Dynamic Analysis (Frida)
+Tested the runtime environment using **Frida** to verify memory safety:
+* **Stateless Processing:** Verified that extracted text is stored in volatile memory and cleared after the UI lifecycle, minimizing the risk of memory dumping attacks.
+* **Root Detection:** Planned implementation of integrity checks to prevent execution on compromised (rooted) devices.
 
-## Requirements
+---
 
-- Android Studio
-- Android device or emulator with a camera
-- Google ML Kit dependencies
+## 🔐 Key AppSec Features
 
-## Installation
+### 📸 Secure Camera & Permission Flow
+- **Least Privilege:** Requests `CAMERA` permission only at the point of use.
+- **Intent Protection:** Uses explicit intents for camera interactions to prevent **Intent Hijacking**.
+- **On-Device ML:** Configured ML Kit for **100% On-Device processing**. No images or text are transmitted to the cloud, ensuring user privacy and compliance (GDPR/CCPA).
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/nikolaivetrik24062010/Image2TextApp.git
-    ```
-2. Open the project in Android Studio.
-3. Build and run on an Android device or emulator.
+### 🛠️ Defensive Coding Practices
+- **Logging Safety:** Integrated a release-build tree that strips all `Log.d` and `Log.v` calls to prevent sensitive info leakage in `logcat`.
+- **Memory Management:** Overrode `onTrimMemory()` to securely flush Bitmaps from the heap after OCR completion.
 
-## Security Considerations
+---
 
-- Camera and storage permissions requested only when needed.
-- All data in memory; local storage encrypted if persistence is required.
-- Sensitive information never logged.
-- Follows secure coding standards and safe integration with ML Kit.
-- Encourages threat modeling to identify additional security gaps.
+## ⚠️ Threat Modeling (Potential Vectors vs. Mitigations)
 
-## Contributing
+| Threat Vector | Risk Level | Mitigation Implemented |
+| :--- | :--- | :--- |
+| **Reverse Engineering** | High | R8 Obfuscation & Metadata removal. |
+| **Data Leakage (Cache)** | Medium | Use of internal `cacheDir` (UID-restricted) & automatic cleanup. |
+| **Insecure Storage** | Medium | No persistence of extracted text in plaintext files. |
+| **Screen Scraping** | Low | Optional `FLAG_SECURE` integration for sensitive results. |
 
-Contributions are welcome with a focus on security:
+---
 
-1. Fork the repository.
-2. Create a branch for your feature or bugfix:
-    ```bash
-    git checkout -b feature-name
-    ```
-3. Commit changes with clear, security-focused messages:
-    ```bash
-    git commit -m "Fix vulnerability / secure implementation"
-    ```
-4. Push to the branch:
-    ```bash
-    git push origin feature-name
-    ```
-5. Open a pull request for review.
+## 🚀 Tech Stack & Tools
+- **Language:** Kotlin
+- **Architecture:** MVVM + Clean Architecture
+- **Library:** Google ML Kit (Vision)
+- **Security Tools:** MobSF, Frida, Jadx-GUI, Burp Suite.
 
-## License
+---
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## 🤝 Author
+**Nikolai Vetrik** *Senior Security Engineer & Mobile Developer* 📧 [devnikolaivetrik@gmail.com](mailto:devnikolaivetrik@gmail.com) | 🔗 [LinkedIn](https://linkedin.com/in/nikolayvetrik24062010)
+
+---
+*Note: This project is part of a security portfolio demonstrating the transition from software engineering to specialized Application Security.*
